@@ -9,6 +9,8 @@
   "app-generic-asset.json",
   "app-js.json",
   "app-parachains.json",
+  "app-phala-m2.json",
+  "app-phala-poc2.json",
   "app-settings.json",
   "app-society.json",
   "app-staking.json",

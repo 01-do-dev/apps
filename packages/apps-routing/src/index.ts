@@ -20,6 +20,7 @@ import extrinsics from './extrinsics';
 import genericAsset from './generic-asset';
 import i18n from './i18n';
 import js from './js';
+import phalaPoc2 from './phala-poc2';
 import parachains from './parachains';
 import settings from './settings';
 import society from './society';
@@ -40,6 +41,7 @@ export default function create (t: <T = string> (key: string, text: string, opti
       claims(t),
       transfer(t),
       genericAsset(t),
+      phalaPoc2(t),
       null,
       staking(t),
       democracy(t),
@@ -55,6 +57,7 @@ export default function create (t: <T = string> (key: string, text: string, opti
       claims(t),
       transfer(t),
       genericAsset(t),
+      phalaPoc2(t),
       null,
       staking(t),
       democracy(t),

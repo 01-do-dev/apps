@@ -117,7 +117,7 @@ function Targets ({ className = '', isInElection, ownStashes, targets: { calcWit
   );
 
   const header = useMemo(() => [
-    [t('validators'), 'start', 4],
+    [t('Gatekeepers'), 'start', 4],
     ...['rankNumNominators', 'rankComm', 'rankBondTotal', 'rankBondOwn', 'rankBondOther', 'rankOverall'].map((header) => [
       <>{labels[header]}<Icon icon={sortBy === header ? (sortFromMax ? 'chevron-down' : 'chevron-up') : 'minus'} /></>,
       `${sorted ? `isClickable ${sortBy === header ? 'ui--highlight--border' : ''} number` : 'number'} ${classes[header] || ''}`,
@@ -132,7 +132,7 @@ function Targets ({ className = '', isInElection, ownStashes, targets: { calcWit
       <div>
         <InputBalance
           className='balanceInput'
-          help={t<string>('The amount that will be used on a per-validator basis to calculate profits for that validator.')}
+          help={t<string>('The amount that will be used on a per-validator basis to calculate profits for that Gatekeeper.')}
           isFull
           isZeroable={false}
           label={t<string>('amount to use for estimation')}
@@ -179,7 +179,7 @@ function Targets ({ className = '', isInElection, ownStashes, targets: { calcWit
       </Button.Group>
       <ElectionBanner isInElection={isInElection} />
       <Table
-        empty={sorted && t<string>('No active validators to check')}
+        empty={sorted && t<string>('No active Gatekeepers to check')}
         filter={filter}
         header={header}
       >

@@ -72,7 +72,7 @@
     "postinstall:electron": "electron-builder install-app-deps",
     "test": "polkadot-dev-run-test packages/page-claims/src",
     "test:one": "polkadot-dev-run-test",
-    "start": "yarn clean && cd packages/apps && webpack --config webpack.config.js",
+    "start": "yarn clean && cd packages/apps && webpack --config webpack.config.js --watch",
     "start:electron": "yarn clean:electronBuild && concurrently 'yarn build:devElectronMain && cd packages/apps-electron && electron ./build/electron.js' 'yarn build:devElectronRenderer'"
   },
   "devDependencies": {

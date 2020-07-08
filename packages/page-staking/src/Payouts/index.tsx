@@ -132,7 +132,7 @@ function Payouts ({ className = '', isInElection }: Props): React.ReactElement<P
   ], [t]);
 
   const headerValidators = useMemo(() => [
-    [t('payout/validator'), 'start', 2],
+    [t('payout/Gatekeeper'), 'start', 2],
     [t('eras'), 'start'],
     [t('available')],
     [('remaining')],

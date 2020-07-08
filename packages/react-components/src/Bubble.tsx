@@ -28,8 +28,8 @@ function Bubble ({ children, className = '', color, icon, label }: Props): React
       <div className='ui--Bubble-header'>
         {icon && (
           <Icon
-            name={icon}
-            size='large'
+            icon={icon}
+            size='lg'
           />
         )}
         {label && <div className='text'>{label}</div>}

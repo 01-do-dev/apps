@@ -18,7 +18,7 @@ const ENV = process.env.NODE_ENV || 'development';
 module.exports = merge(
   baseConfig(ENV, context),
   {
-    devtool: false,
+    devtool: process.env.NODE_ENV === 'production' ? false : 'eval-source-map',
     plugins: [
       new HtmlWebpackPlugin({
         PAGE_TITLE: 'Polkadot/Substrate Portal',

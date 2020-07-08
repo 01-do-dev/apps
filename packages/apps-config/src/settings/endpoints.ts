@@ -31,6 +31,12 @@ function createDev (t: TFn): LinkOption[] {
 function createLive (t: TFn): LinkOption[] {
   return [
     {
+      dnslink: 'phala',
+      info: 'phala',
+      text: t<string>('rpc.phalapoc2.phala', 'Phala Network (Testnet PoC2, hosted by Phala)', { ns: 'apps-config' }),
+      value: 'wss://poc2.phala.network/ws'
+    },
+    {
       dnslink: 'polkadot',
       info: 'polkadot',
       text: t<string>('rpc.polkadot.parity', 'Polkadot (Live, hosted by Parity)', { ns: 'apps-config' }),
@@ -83,6 +89,12 @@ function createLive (t: TFn): LinkOption[] {
 
 function createTest (t: TFn): LinkOption[] {
   return [
+    {
+      dnslink: 'phala',
+      info: 'phaladev',
+      text: t<string>('rpc.phalapoc2.phala', 'Phala Network (DEV, hosted by Phala)', { ns: 'apps-config' }),
+      value: 'wss://hashbox.corp.phala.network/ws'
+    },
     {
       dnslink: 'westend',
       info: 'westend',
