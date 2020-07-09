@@ -8,6 +8,18 @@ export interface GetInfoResp {
   ecdhPublicKey: string;
 }
 
+export interface GetItemsResp {
+  GetItems?: {
+    items?: Array<any>
+  }
+}
+
+export interface GetOrdersResp {
+  GetOrders?: {
+    orders?: Array<any>
+  }
+}
+
 export interface TestReq {
   testBlockParse?: boolean;
   testBridge?: boolean;

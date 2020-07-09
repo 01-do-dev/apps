@@ -3,6 +3,7 @@ import { KeyringPair } from '@polkadot/keyring/types';
 
 import axios, {AxiosInstance} from 'axios';
 import * as base64 from 'base64-js';
+import { Base64 } from 'js-base64';
 
 import Crypto, { EcdhChannel } from './crypto';
 import * as Models from './models';
@@ -23,16 +24,26 @@ interface ApiResponse {
   status: 'ok' | 'err';
 }
 
+interface PRuntimeProps {
+  endpoint: PhalaSharedStruct['pRuntimeEndpoint'],
+  channel: PhalaSharedStruct['ecdhChannel'],
+  keypair: PhalaSharedStruct['keypair']
+}
+
 // PRuntime API client
 class PRuntime {
   endpoint: PhalaSharedStruct['pRuntimeEndpoint'];
   service: AxiosInstance;
+  channel: PhalaSharedStruct['ecdhChannel'];
+  keypair: PhalaSharedStruct['keypair'];
 
-  constructor(endpoint: PhalaSharedStruct['pRuntimeEndpoint'] = config.pRuntimeEndpoint) {
+  constructor({ endpoint, channel, keypair }: PRuntimeProps) {
     this.endpoint = endpoint;
     this.service = axios.create({
       baseURL: endpoint as string
     });
+    this.channel = channel;
+    this.keypair = keypair;
   }
 
   // Internally
@@ -58,6 +69,18 @@ class PRuntime {
     return Models.fromApi<T>(resp);
   }
 
+  async setFile(path: string, data: string) {
+    return await this.req('set', {
+      path,
+      data: Base64.encode(data)
+    })
+  }
+  
+  async getFile(path: string) {
+    const result = await this.req('get', {path});
+    return Base64.decode(result.value);
+  }
+
   // API get_info
   async getInfo(): Promise<Models.GetInfoResp> {
     return await this.reqTyped<Models.GetInfoResp>('get_info');
@@ -69,18 +92,35 @@ class PRuntime {
   }
 
   // API query
-  async query<R, T>(contractId: number, request: T, channel: EcdhChannel, keypair?: KeyringPair) {
+  async query<R, T>(contractId: number, request: T) {
     const query: Models.Query<T> = {
       contractId: contractId,
       nonce: Math.random()*65535 | 0,
       request,
     };
-    const cipher = await encryptObj(channel, query);
+    const cipher = await encryptObj(this.channel, query);
     const payload = {Cipher: cipher};  // May support plain text in the future.
-    const q = signQuery(payload, keypair);
+    const q = signQuery(payload, this.keypair as KeyringPair);
     const respPayload = await this.reqTyped<Models.Payload>('query', q);
     // Decode payload
-    return await decodePayload<R>(channel, respPayload);
+    return await decodePayload<R>(this.channel, respPayload);
+  }
+
+  getItems(contractId: number = 1): Promise<Models.GetItemsResp> {
+    return this.query<Models.GetItemsResp, string>(contractId, 'GetItems');
+  }
+
+  async getItem(index: number, contractId: number = 1): Promise<any> {
+    return (await this.getItems(contractId)).GetItems?.items?.[index] || undefined;
+  }
+
+  getOrders(contractId: number = 1): Promise<Models.GetOrdersResp> {
+    return this.query(contractId, 'GetOrders');
+  }
+
+  async getOrder(id: number, contractId: number = 1): Promise<any> {
+    const { GetOrders: { orders } } = await this.getOrders();
+    return (orders || []).filter(i => id === i.id)?.[0] || undefined
   }
 }
 

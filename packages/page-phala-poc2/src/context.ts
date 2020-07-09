@@ -6,44 +6,28 @@ import PRuntime from './pruntime';
 import { EcdhChannel } from './pruntime/crypto';
 
 export interface PhalaSharedStruct {
-  pRuntimeEndpoint: string | null,
-  setPRuntimeEndpoint: React.Dispatch<PhalaSharedStruct['pRuntimeEndpoint']> | null,
+  pRuntimeEndpoint: string,
+  setPRuntimeEndpoint: React.Dispatch<PhalaSharedStruct['pRuntimeEndpoint']>,
   accountId: string | null,
-  setAccountId: React.Dispatch<PhalaSharedStruct['accountId']> | null,
+  setAccountId: React.Dispatch<PhalaSharedStruct['accountId']>,
   keypair: KeyringPair | null,
-  setKeypair: React.Dispatch<PhalaSharedStruct['keypair']> | null,
-  latency: number | null,
-  setLatency: React.Dispatch<PhalaSharedStruct['latency']> | null,
+  setKeypair: React.Dispatch<PhalaSharedStruct['keypair']>,
+  latency: number,
+  setLatency: React.Dispatch<PhalaSharedStruct['latency']>,
   info: GetInfoResp | null,
-  setInfo: React.Dispatch<PhalaSharedStruct['info']> | null,
+  setInfo: React.Dispatch<PhalaSharedStruct['info']>,
   error: boolean,
-  setError: React.Dispatch<PhalaSharedStruct['error']> | null,
-  pApi: PRuntime | null,
-  ecdhChannel: EcdhChannel | null,
-  setEcdhChannel: React.Dispatch<PhalaSharedStruct['ecdhChannel']> | null,
+  setError: React.Dispatch<PhalaSharedStruct['error']>,
+  pApi: PRuntime,
+  ecdhChannel: EcdhChannel,
+  setEcdhChannel: React.Dispatch<PhalaSharedStruct['ecdhChannel']>,
   ecdhShouldJoin: boolean,
-  setEcdhShouldJoin: React.Dispatch<PhalaSharedStruct['ecdhShouldJoin']> | null
+  setEcdhShouldJoin: React.Dispatch<PhalaSharedStruct['ecdhShouldJoin']>,
+  basePath: string,
+  setBasePath: React.Dispatch<PhalaSharedStruct['basePath']>,
+  createCommand: Function
 }
 
-export const PhalaSharedContext = React.createContext<PhalaSharedStruct>({
-  pRuntimeEndpoint: null,
-  setPRuntimeEndpoint: null,
-  accountId: null,
-  setAccountId: null,
-  keypair: null,
-  setKeypair: null,
-  latency: null,
-  setLatency: null,
-  info: null,
-  setInfo: null,
-  error: false,
-  setError: null,
-  pApi: null,
-  ecdhChannel: null,
-  setEcdhChannel: null,
-  ecdhShouldJoin: false,
-  setEcdhShouldJoin: null
+export const PhalaSharedContext = React.createContext<PhalaSharedStruct | null>(null);
 
-});
-
-export const usePhalaShared = (): PhalaSharedStruct => React.useContext(PhalaSharedContext);
+export const usePhalaShared = (): PhalaSharedStruct => React.useContext(PhalaSharedContext) as PhalaSharedStruct;

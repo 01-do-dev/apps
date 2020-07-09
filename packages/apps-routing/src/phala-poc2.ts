@@ -4,7 +4,7 @@
 
 import { Route } from './types';
 
-import PhalaPoc2 from '@polkadot/app-phala-poc2';
+import PhalaPoc2 from '@polkadot/page-phala-poc2';
 
 export default function create (t: (key: string, text: string, options: { ns: string }) => string): Route {
   return {

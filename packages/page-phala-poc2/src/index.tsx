@@ -11,7 +11,7 @@ import Tabs from '@polkadot/react-components/Tabs';
 
 // external imports (including those found in the packages/*
 // of this repo)
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Route, Switch } from 'react-router';
 import styled from 'styled-components';
 
@@ -21,10 +21,15 @@ import AssetsTab from './contracts/assets';
 import SettingsTab from './SettingsTab';
 import { useTranslation } from './translate';
 
-import PRuntime, {measure} from './pruntime';
-import Crypto, {EcdhChannel} from './pruntime/crypto';
+import PRuntime, { measure, encryptObj } from './pruntime';
+import Crypto, { EcdhChannel } from './pruntime/crypto';
+import { toApi } from './pruntime/models';
 import config from './config';
 import { PhalaSharedContext, PhalaSharedStruct, usePhalaShared } from './context';
+import List from './List';
+import Items from './Items';
+import NewOrder from './NewOrder';
+import Result from './Result'
 
 interface Props extends AppProps {}
 
@@ -47,14 +52,13 @@ const Banner = styled.div`
 `;
 
 function PhalaPoc2 (props: Props): React.ReactElement<Props> {
+  const [basePath, setBasePath] = useState<PhalaSharedStruct['basePath']>('/phala-poc2')
   const [pRuntimeEndpoint, setPRuntimeEndpoint] = useState<PhalaSharedStruct['pRuntimeEndpoint']>(config.pRuntimeEndpoint);
   const [accountId, setAccountId] = useState<PhalaSharedStruct['accountId']>(null);
   const [keypair, setKeypair] = useState<PhalaSharedStruct['keypair']>(null);
   const [latency, setLatency] = useState<PhalaSharedStruct['latency']>(0);
   const [info, setInfo] = useState<PhalaSharedStruct['info']>(null);
   const [error, setError] = useState<boolean>(false);
-
-  const pApi = useMemo(() => new PRuntime(pRuntimeEndpoint), [pRuntimeEndpoint]);
 
   const [ecdhChannel, setEcdhChannel] = useState<EcdhChannel | null>(null);
   const [ecdhShouldJoin, setEcdhShouldJoin] = useState(false);
@@ -63,26 +67,6 @@ function PhalaPoc2 (props: Props): React.ReactElement<Props> {
     setError(false);
     setLatency(0);
     setInfo(null);
-  }, [pRuntimeEndpoint])
-
-  React.useEffect(() => {
-    if (!pApi) {
-      return
-    }
-
-    const interval: number = setInterval(() => {
-      measure((() =>
-        pApi.getInfo()
-          .then(i => setInfo(i))
-          .catch(e => {
-            setError(true);
-            console.warn('Error getting /info', e);
-          })
-      ))
-        .then(dt => setLatency(l => l ? l * 0.8 + dt * 0.2 : dt))
-    }, 1000);
-
-    return () => clearTimeout(interval);
   }, [pRuntimeEndpoint])
 
   React.useEffect(() => {
@@ -105,7 +89,49 @@ function PhalaPoc2 (props: Props): React.ReactElement<Props> {
       })
   }, [setEcdhShouldJoin, info?.ecdhPublicKey]);
 
+  const pApi = useMemo(() => {
+    if (!(pRuntimeEndpoint && ecdhChannel && keypair)) {
+      return
+    }
+    return new PRuntime({
+      endpoint: pRuntimeEndpoint,
+      channel: ecdhChannel as EcdhChannel,
+      keypair: keypair
+    })
+  }, [pRuntimeEndpoint, ecdhChannel, keypair]);
+
+  React.useEffect(() => {
+    if (!pApi) {
+      return
+    }
+
+    const interval: number = setInterval(() => {
+      measure((() =>
+        pApi.getInfo()
+          .then(i => setInfo(i))
+          .catch(e => {
+            setError(true);
+            console.warn('Error getting /info', e);
+          })
+      ))
+        .then(dt => setLatency(l => l ? l * 0.8 + dt * 0.2 : dt))
+    }, 1000);
+
+    return () => clearTimeout(interval);
+  }, [pApi])
+
+  const createCommand = useCallback(async (obj) => {
+    if (!ecdhChannel) {
+      return '';
+    }
+    console.log('obj', obj)
+    const cipher = await encryptObj(ecdhChannel, obj);
+    const apiCipher = toApi(cipher);
+    return JSON.stringify({Cipher: apiCipher});
+  }, [ecdhChannel]) as Function;
+
   const contextValue = useMemo(() => ({
+    basePath, setBasePath,
     pRuntimeEndpoint, setPRuntimeEndpoint,
     accountId, setAccountId,
     keypair, setKeypair,
@@ -113,8 +139,10 @@ function PhalaPoc2 (props: Props): React.ReactElement<Props> {
     info, setInfo,
     error, setError,
     ecdhChannel, setEcdhChannel,
-    pApi
+    pApi,
+    createCommand
   }), [
+    basePath, setBasePath,
     pRuntimeEndpoint, setPRuntimeEndpoint,
     accountId, setAccountId,
     keypair, setKeypair,
@@ -123,7 +151,8 @@ function PhalaPoc2 (props: Props): React.ReactElement<Props> {
     error, setError,
     ecdhChannel, setEcdhChannel,
     ecdhShouldJoin, setEcdhShouldJoin,
-    pApi
+    pApi,
+    createCommand
   ]);
 
   return <PhalaSharedContext.Provider value={contextValue as PhalaSharedStruct}>
@@ -131,20 +160,23 @@ function PhalaPoc2 (props: Props): React.ReactElement<Props> {
   </PhalaSharedContext.Provider>
 }
 
-function _PhalaPoc2 ({ className, basePath }: Props): React.ReactElement<Props> {
+function _PhalaPoc2 ({ className, basePath: basePathProp }: Props): React.ReactElement<Props> {
   const { t } = useTranslation();
 
   const {
     pRuntimeEndpoint,
     accountId,
     keypair,
-    ecdhChannel
-  } = usePhalaShared();
+    ecdhChannel,
+    setBasePath
+  } = usePhalaShared() as PhalaSharedStruct;
+
+  useEffect(() => { setBasePath && setBasePath(basePathProp) }, [setBasePath, basePathProp])
 
   return (
     <main className={className}>
       <Tabs
-          basePath={basePath}
+          basePath={basePathProp}
           hidden={(keypair && !keypair.isLocked) ? ['balances'] : ['assets', 'balances']}
           items={[
             {
@@ -156,14 +188,10 @@ function _PhalaPoc2 ({ className, basePath }: Props): React.ReactElement<Props> 
               name: 'list',
               text: t('Publish')
             },
-            {
-              name: 'orders',
-              text: t('Orders')
-            },
-            {
-              name: 'account',
-              text: t('Account')
-            },
+            // {
+            //   name: 'orders',
+            //   text: t('Orders')
+            // },
             {
               name: 'assets',
               text: t('Assets')
@@ -179,7 +207,7 @@ function _PhalaPoc2 ({ className, basePath }: Props): React.ReactElement<Props> 
           ]}
         />
       <Switch>
-        <Route path={`${basePath}/balances`}>
+        <Route path={`${basePathProp}/balances`}>
           <BalancesTab
             accountId={accountId}
             ecdhChannel={ecdhChannel}
@@ -187,7 +215,7 @@ function _PhalaPoc2 ({ className, basePath }: Props): React.ReactElement<Props> 
             keypair={keypair}
           />
         </Route>
-        <Route path={`${basePath}/assets`}>
+        <Route path={`${basePathProp}/assets`}>
           <AssetsTab
             accountId={accountId}
             ecdhChannel={ecdhChannel}
@@ -195,7 +223,7 @@ function _PhalaPoc2 ({ className, basePath }: Props): React.ReactElement<Props> 
             keypair={keypair}
           />
         </Route>
-        <Route path={`${basePath}/settings`}>
+        <Route path={`${basePathProp}/settings`}>
           <Banner>
             <div className='box'>
               <div className='info'>
@@ -207,23 +235,12 @@ function _PhalaPoc2 ({ className, basePath }: Props): React.ReactElement<Props> 
           </Banner>
           <SettingsTab />
         </Route>
-        {/* <Route path={`${basePath}/list`} render={(): React.ReactElement<{}> => (
-          <List basePath={basePath} accountId={accountId} />
-          )} />
-        <Route path={`${basePath}/new_order/:value`} render={(): React.ReactElement<{}> => (
-          <NewOrder basePath={basePath} accountId={accountId} />
-        )} />
-        <Route path={`${basePath}/orders`} component={Orders} />
-        <Route path={`${basePath}/item/:value`} render={(): React.ReactElement<{}> => (
-          <ViewItem basePath={basePath} />
-        )} />
-        <Route path={`${basePath}/account`} render={(): React.ReactElement<{}> => (
-          <AccountSelector onChange={setAccountId} />
-        )} />
-        <Route path={`${basePath}/result/:type/:value`} render={(): React.ReactElement<{}> => (
-          <Result basePath={basePath} accountId={accountId} />
-        )} /> */}
-        <Route component={Items} />
+        <Route path={`${basePathProp}/list`} exact component={List} />
+        
+        <Route path={`${basePathProp}/list/orders/new/:value`} component={NewOrder} />
+        
+        <Route path={`${basePathProp}/list/result/:type/:value`} component={Result} />
+        <Route component={Items} exact path={`${basePathProp}`} />
       </Switch>
     </main>
   );
