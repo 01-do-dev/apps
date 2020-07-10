@@ -33,6 +33,12 @@ function createLive (t: TFn): LinkOption[] {
     {
       dnslink: 'phala',
       info: 'phala',
+      text: t<string>('rpc.phalapoc2.phala', 'Phala Network DP (Testnet PoC2, hosted by Phala)', { ns: 'apps-config' }),
+      value: 'wss://dp.phala.network/ws'
+    },
+    {
+      dnslink: 'phala',
+      info: 'phala',
       text: t<string>('rpc.phalapoc2.phala', 'Phala Network (Testnet PoC2, hosted by Phala)', { ns: 'apps-config' }),
       value: 'wss://poc2.phala.network/ws'
     },
