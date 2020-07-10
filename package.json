@@ -42,6 +42,7 @@
     "babel-core": "^7.0.0-bridge.0"
   },
   "scripts": {
+    "build:direct": "rm -rf out && mkdir out && cd out && NODE_ENV=production webpack --config ../packages/apps/webpack.config.js --output-path .",
     "analyze": "yarn run build && yarn source-map-explorer packages/apps/build/main.*.js",
     "build": "yarn run build:i18n && yarn run build:code",
     "build:code": "NODE_ENV=production node_modules/@polkadot/dev/scripts/polkadot-dev-build-ts.js",
