@@ -73,7 +73,7 @@ function Apps ({ className = '' }: Props): React.ReactElement<Props> {
   const { isCollapsed, isMenu, isMenuOpen } = sidebar;
 
   return (
-    <>
+    <AppsWrapper>
       <GlobalStyle uiHighlight={defaultColor || uiHighlight} />
       <div className={`apps--Wrapper ${isCollapsed ? 'collapsed' : 'expanded'} ${isMenu ? 'fixed' : ''} ${isMenuOpen ? 'menu-open' : ''} theme--default ${className}`}>
         <div
@@ -94,15 +94,60 @@ function Apps ({ className = '' }: Props): React.ReactElement<Props> {
         <div id={PORTAL_ID} />
       </div>
       <WarmUp />
-    </>
+    </AppsWrapper>
   );
 }
+
+const AppsWrapper = ({ children }: Props) => {
+  return <_AppsWrapper>
+    <AppsHeader>
+      <AppsHeaderLogo src={require('./logo-vendor.svg')} alt="logo" />
+      <AppsHeaderTitle>工业互联网数据市场</AppsHeaderTitle>
+    </AppsHeader>
+    <AppsContent>
+      {children}
+    </AppsContent>
+    
+  </_AppsWrapper>
+}
+
+const AppsHeader = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  position: relative;
+  z-index: 100;
+`
+
+const AppsHeaderTitle = styled.p`
+  font-size: 24px;
+`
+
+const AppsHeaderLogo = styled.img`
+  margin: 15px 27px 15px 12px;
+  height: 42px;
+`
+
+const AppsContent = styled.div`
+  height: 0;
+  flex: 1;
+`
+
+const _AppsWrapper = styled.div`
+  display: flex;
+  box-sizing: border-box;
+  overflow: auto;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+`
 
 export default React.memo(styled(Apps)`
   box-sizing: border-box;
   display: flex;
   flex-direction: row;
-  height: 100vh;
+  height: 100%;
 
   &.theme--default {
     a.apps--SideBar-Item-NavLink {

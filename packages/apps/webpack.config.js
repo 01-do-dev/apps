@@ -21,7 +21,7 @@ module.exports = merge(
     devtool: process.env.NODE_ENV === 'production' ? false : 'eval-source-map',
     plugins: [
       new HtmlWebpackPlugin({
-        PAGE_TITLE: 'Polkadot/Substrate Portal',
+        PAGE_TITLE: '工业互联网数据市场',
         inject: true,
         template: path.join(context, `${hasPublic ? 'public/' : ''}index.html`)
       })

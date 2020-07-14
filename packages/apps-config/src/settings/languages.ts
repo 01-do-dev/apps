@@ -6,33 +6,33 @@ import { Option } from './types';
 
 export default function create (t: <T= string> (key: string, text: string, options: { ns: string }) => T): Option[] {
   return [
-    {
-      text: t<string>('lng.detect', 'Default browser language (auto-detect)', { ns: 'apps-config' }),
-      value: 'default'
-    },
-    {
-      text: 'English',
-      value: 'en'
-    },
-    {
-      text: 'Español',
-      value: 'es'
-    },
-    {
-      text: '日本語',
-      value: 'ja'
-    },
-    {
-      text: 'Português',
-      value: 'pt'
-    },
-    {
-      text: 'русский',
-      value: 'ru'
-    },
+    // {
+    //   text: t<string>('lng.detect', 'Default browser language (auto-detect)', { ns: 'apps-config' }),
+    //   value: 'default'
+    // },
     {
       text: '汉语',
       value: 'zh'
-    }
+    },
+    // {
+    //   text: 'English',
+    //   value: 'en'
+    // },
+    // {
+    //   text: 'Español',
+    //   value: 'es'
+    // },
+    // {
+    //   text: '日本語',
+    //   value: 'ja'
+    // },
+    // {
+    //   text: 'Português',
+    //   value: 'pt'
+    // },
+    // {
+    //   text: 'русский',
+    //   value: 'ru'
+    // }
   ];
 }

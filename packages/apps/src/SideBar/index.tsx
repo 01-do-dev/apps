@@ -187,7 +187,7 @@ export default React.memo(styled(SideBar)`
 
     .ui.vertical.menu {
       display: flex;
-      height: 100vh;
+      height: 100%;
       margin: 0;
       top: 0;
       width: 100%;
@@ -198,7 +198,7 @@ export default React.memo(styled(SideBar)`
       align-items: center;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      height: 100%;
       overflow-y: auto;
       width: 100%;
       scrollbar-width: none;

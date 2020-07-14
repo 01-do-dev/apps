@@ -14,7 +14,7 @@ const nodeCentrifuge = '#fcc367';
 const nodeEdgeware = '#0a95df';
 const nodeNodle = '#1ab394';
 
-const nodePhala = '#39ac39';
+const nodePhala = '#3473ef';
 
 // overrides based on the actual matched chain name
 const chainColors: Record<string, any> = [

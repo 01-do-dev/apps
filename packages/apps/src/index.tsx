@@ -35,6 +35,10 @@ store.each((_, key): void => {
   }
 });
 
+settings.set({
+  i18nLang: 'zh'
+})
+
 ReactDOM.render(
   <Suspense fallback='...'>
     <ThemeProvider theme={theme}>

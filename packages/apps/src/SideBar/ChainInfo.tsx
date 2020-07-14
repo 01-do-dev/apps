@@ -31,9 +31,9 @@ function ChainInfo ({ className = '', onClick }: Props): React.ReactElement<Prop
         <ChainImg />
         <div className='info'>
           <Chain className='chain' />
-          {runtimeVersion && (
+          {/* {runtimeVersion && (
             <div className='runtimeVersion'>{t<string>('version {{version}}', { replace: { version: runtimeVersion.specVersion.toNumber() } })}</div>
-          )}
+          )} */}
           <BestNumber label='#' />
         </div>
         <Icon
