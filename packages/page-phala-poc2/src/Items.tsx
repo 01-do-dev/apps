@@ -1,7 +1,7 @@
 import { I18nProps } from '@polkadot/react-components/types';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import styled from 'styled-components';
 import { Header, Divider, Card, Grid, Label, Icon, Rating } from 'semantic-ui-react';
 
@@ -25,6 +25,15 @@ interface DatasetProps {
 
 function _Dataset ({ className = '', item, id }: DatasetProps): React.ReactElement | null {
   const [modal, setModal] = useState(false);
+  const history = useHistory();
+
+  const itemId = (parseInt(new URLSearchParams(history.location.search).get('itemId')));
+
+  useEffect(() => {
+    if (itemId === item.id) {
+      setModal(true)
+    }
+  }, [itemId])
 
   function handleClick() {
     setModal(true)

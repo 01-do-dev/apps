@@ -40,9 +40,8 @@ function genTable (csv: string) {
 }
 
 export default function _ViewItem({ setModal, item, id }): React.ReactElement<Props> | null {
-  const { value } = useParams();
 
-  const { basePath, accountId, pApi } = usePhalaShared();
+  const { basePath, accountId } = usePhalaShared();
 
   const history = useHistory();
 
@@ -147,14 +146,14 @@ export default function _ViewItem({ setModal, item, id }): React.ReactElement<Pr
         </Table.Body>
       </Table>
 
-      <Grid>
+      {!imSeller && <Grid>
         <Grid.Row style={{
           placeContent: 'center',
           margin: '12px 0 6px'
         }}>
           <Button primary onClick={handleBuy}>购买</Button>
         </Grid.Row>
-      </Grid>
+      </Grid>}
     </div>
   )
 }

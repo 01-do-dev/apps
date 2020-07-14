@@ -2,8 +2,9 @@ import { Modal, Button as PButton, TxButton, InputAddress } from '@polkadot/reac
 
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useHistory } from "react-router-dom";
+import { useApi, useCall } from '@polkadot/react-hooks';
 import { useDropzone } from 'react-dropzone'
-import { Button, Divider, Form, Grid, Input, Select, Header } from 'semantic-ui-react';
+import { Button, Divider, Form, Grid, Input, Select, Header, Modal as SModal } from 'semantic-ui-react';
 import * as Papa from 'papaparse';
 
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -11,7 +12,7 @@ import monokai from 'react-syntax-highlighter/dist/esm/styles/hljs/monokai';
 
 import useForm, { FormContext, useFormContext } from 'react-hook-form';
 
-import { UploadContainer, genTablePreview, fileToIpfsPath, readTextFileAsync } from './legacy/utils';
+import { UploadContainer, genTablePreview, fileToIpfsPath, readTextFileAsync, sleep, isSamePerson, pubkeyToCompany  } from './legacy/utils';
 import { amountFromNL } from './legacy/models'
 import { usePhalaShared } from './context';
 import PageContainer from './PageContainer';
@@ -267,6 +268,10 @@ export default function List(props: Props): React.ReactElement<Props> | null {
   const [datasetState, setDatasetState] = useState<DatasetState>({ header: null, rows: null, file: null, ipfs_path: '' });
   const [submitTxOpen, setSubmitTxOpen] = useState<boolean>(false);
   const [commandIssue, setCommandIssue] = useState('');
+  const [successWait, setSuccessWait] = useState(false);
+  const { api } = useApi();
+  const bestNumber = useCall(api.derive.chain.bestNumber, []);
+  const [blockBeforeSubmit, setBlockBeforeSubmit] = useState<BlockNumber | undefined>(null);
 
   function handleDatasetReady(file: File) {
     Papa.parse(file, {
@@ -292,6 +297,10 @@ export default function List(props: Props): React.ReactElement<Props> | null {
   }, [accountId]);
 
   async function onSubmit(values: Object) {
+    if (!bestNumber) {
+      alert('Substrate网络异常，无法获取最新区块高度');
+      return;
+    }
     if (!datasetState.ipfs_path) {
       alert('请选择上传文件');
       return;
@@ -307,6 +316,7 @@ export default function List(props: Props): React.ReactElement<Props> | null {
     };
 
     setCommandIssue(await createCommand(normalized));
+    setBlockBeforeSubmit(bestNumber);
     setSubmitTxOpen(true);
   }
 
@@ -314,8 +324,41 @@ export default function List(props: Props): React.ReactElement<Props> | null {
     setSubmitTxOpen(false);
   }
 
+  const handleSuccess = useCallback(async () => {
+    const refBlock = parseInt(blockBeforeSubmit!.toString());
+    setSuccessWait(true);
+    console.log(`tx submitted. waiting from ${refBlock}`)
+    let myItems: Array = [];
+    for (let i = 0; i < 20; i++) {
+      const { GetItems: { items } } = await pApi.getItems();
+      console.log(items)
+      myItems = items.filter((o) => (o.txref.blocknum > refBlock && isSamePerson(accountId!, o.seller)));
+      if (myItems.length > 0) {
+        // found!
+        const item = myItems[myItems?.length - 1];
+        console.log('Navigating to', `${basePath}?itemId=${item.id}`, item);
+        history.push(`${basePath}?itemId=${item.id}`);
+        return;
+      }
+      console.log('waiting for order creation');
+      await sleep(2000);
+    }
+    alert('创建交易超时');
+    setSuccessWait(false);
+  }, [pApi, blockBeforeSubmit]); 
+
   return (
     <PageContainer fluid>
+      <SModal
+        open={successWait}
+        size='small'
+        actions={['Snooze', { key: 'done', content: 'Done', positive: true }]}
+      >
+        <Header icon='browser' content='正在处理购买请求' />
+        <Modal.Content>
+          <h3>处理完成后将自动跳转至结果页面，请稍候。</h3>
+        </Modal.Content>
+      </SModal>
       <Header
         as='h2'
         content='数据商品市场'
@@ -352,6 +395,9 @@ export default function List(props: Props): React.ReactElement<Props> | null {
               label='提交'
               params={[contractId, commandIssue]}
               tx='phalaModule.pushCommand'
+              onSuccess={handleSuccess}
+              onStart={() => setSuccessWait(true)}
+              onFailed={() => setSuccessWait(false)}
             />
           </PButton.Group>
         </Modal.Content>
