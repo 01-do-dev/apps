@@ -120,7 +120,7 @@ function Settings(props: BareProps): React.ReactElement<BareProps> {
       />
 
       <section>
-        <h2>ECDH test</h2>
+        <h2>ECDH测试</h2>
         <div className='ui--row'>
           <div className='large'>
             <div>

@@ -24,11 +24,11 @@ function AccountSelector ({ className, onChange }: Props): React.ReactElement<Pr
 
   return (
     <section className={`template--AccountSelector ${className}`}>
-      <h2>select account</h2>
+      <h2>选择账户</h2>
       <div className='ui--row'>
         <div className='large'>
           <InputAddress
-            label='my default account'
+            label='我的默认账户'
             onChange={setAccountId}
             type='account'
           />

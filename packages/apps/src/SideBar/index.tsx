@@ -105,7 +105,7 @@ function SideBar ({ className = '', collapse, handleResize, isCollapsed, isMenuO
                 )
             ))}
             <Menu.Divider hidden />
-            <Menu.Item className='apps--SideBar-Item'>
+            {/* <Menu.Item className='apps--SideBar-Item'>
               <a
                 className='apps--SideBar-Item-NavLink'
                 href='https://github.com/polkadot-js/apps'
@@ -124,7 +124,7 @@ function SideBar ({ className = '', collapse, handleResize, isCollapsed, isMenuO
               >
                 <Icon icon='book' /><span className='text'>{t<string>('nav.wiki', 'Wiki', { ns: 'apps-routing' })}</span>
               </a>
-            </Menu.Item>
+            </Menu.Item> */}
             <Menu.Divider hidden />
             {!isCollapsed && <NodeInfo />}
           </div>

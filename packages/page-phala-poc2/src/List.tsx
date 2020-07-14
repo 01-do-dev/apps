@@ -1,9 +1,9 @@
 import { Modal, Button as PButton, TxButton, InputAddress } from '@polkadot/react-components';
 
-import React, {useEffect, useState, useCallback, useMemo, useRef} from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useHistory } from "react-router-dom";
 import { useDropzone } from 'react-dropzone'
-import { Button, Form, Grid, Input, Select, TextArea } from 'semantic-ui-react';
+import { Button, Divider, Form, Grid, Input, Select, Header } from 'semantic-ui-react';
 import * as Papa from 'papaparse';
 
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -14,11 +14,12 @@ import useForm, { FormContext, useFormContext } from 'react-hook-form';
 import { UploadContainer, genTablePreview, fileToIpfsPath, readTextFileAsync } from './legacy/utils';
 import { amountFromNL } from './legacy/models'
 import { usePhalaShared } from './context';
+import PageContainer from './PageContainer';
 
 // import imgIpfsSvg from './assets/ipfs-logo-vector-ice-text.svg';
 
 
-const categories =  [
+const categories = [
   { key: 'c1', value: '征信数据', text: '征信数据' },
   { key: 'c2', value: '语料库', text: '语料库' },
   { key: 'c3', value: '图像', text: '图像' },
@@ -43,7 +44,7 @@ interface StepBasicProps {
   onDatasetReady: (file: File) => void;
 }
 
-function StepBasic({onDatasetReady}: StepBasicProps): React.ReactElement<StepBasicProps> | null {
+function StepBasic({ onDatasetReady }: StepBasicProps): React.ReactElement<StepBasicProps> | null {
   const { register, setValue, triggerValidation, errors } = useFormContext();
   const formUpdate = useFormUpdate(setValue, triggerValidation);
 
@@ -58,7 +59,7 @@ function StepBasic({onDatasetReady}: StepBasicProps): React.ReactElement<StepBas
   const {
     getRootProps, getInputProps,
     isDragActive, isDragAccept, isDragReject
-  } = useDropzone({onDrop});
+  } = useDropzone({ onDrop });
 
   useEffect(() => {
     register({ name: "sellerName" }, { required: true });
@@ -68,7 +69,11 @@ function StepBasic({onDatasetReady}: StepBasicProps): React.ReactElement<StepBas
 
   return (
     <>
-      <h2>基本信息</h2>
+      <Header
+        as='h3'
+        content='基本信息'
+      />
+
       <Grid stackable>
         <Grid.Row verticalAlign='middle'>
           <Grid.Column width={2} textAlign='right'>商户名称</Grid.Column>
@@ -94,7 +99,7 @@ function StepBasic({onDatasetReady}: StepBasicProps): React.ReactElement<StepBas
         <Grid.Row verticalAlign='top'>
           <Grid.Column width={2} textAlign='right'>数据文件</Grid.Column>
           <Grid.Column width={6}>
-            <UploadContainer {...getRootProps({isDragActive, isDragAccept, isDragReject})}>
+            <UploadContainer {...getRootProps({ isDragActive, isDragAccept, isDragReject })}>
               <input {...getInputProps()} />
               {
                 isDragActive ?
@@ -126,7 +131,7 @@ interface StepDetailsProps {
   dataset: DatasetState;
 }
 
-function StepDetails({dataset}: StepDetailsProps): React.ReactElement<StepDetailsProps> | null {
+function StepDetails({ dataset }: StepDetailsProps): React.ReactElement<StepDetailsProps> | null {
   const { createCommand } = usePhalaShared();
   const history = useHistory();
   const { register, setValue, triggerValidation, errors, watch } = useFormContext();
@@ -162,23 +167,27 @@ function StepDetails({dataset}: StepDetailsProps): React.ReactElement<StepDetail
   // }, [contractParamsRaw])
 
 
-  function handleAccountType () {
+  function handleAccountType() {
     setShowRowPrice(true);
   }
 
-  function handleCancel () {
+  function handleCancel() {
     history.goBack();
   }
 
   useEffect(() => {
-    register({ name: 'dataset_preview' }, {required: true});
-    register({ name: 'price.PerRow.displayPrice', type: 'number' }, {required: true});
-    register({ name: 'description' }, {required: true});
+    register({ name: 'dataset_preview' }, { required: true });
+    register({ name: 'price.PerRow.displayPrice', type: 'number' }, { required: true });
+    register({ name: 'description' }, { required: true });
   }, []);
 
   return (
     <>
-      <h2>数据信息</h2>
+      <Header
+        as='h3'
+        content='数据信息'
+      />
+
       <Grid>
         <Grid.Row>
           <Grid.Column width={2} textAlign='right'>即将发布</Grid.Column>
@@ -196,8 +205,8 @@ function StepDetails({dataset}: StepDetailsProps): React.ReactElement<StepDetail
           <Grid.Column width={2} textAlign='right'>预览数据(展示用)</Grid.Column>
           <Grid.Column width={10}>
             <Form.TextArea name="dataset_preview" onChange={formUpdate}
-                           error={!!errors.dataset_preview}
-                           placeholder={dataPreviewDefault}/>
+              error={!!errors.dataset_preview}
+              placeholder={dataPreviewDefault} />
           </Grid.Column>
         </Grid.Row>
         <Grid.Row verticalAlign='middle'>
@@ -205,13 +214,13 @@ function StepDetails({dataset}: StepDetailsProps): React.ReactElement<StepDetail
           <Grid.Column width={4}>
             <Select placeholder='请选择' options={accoutingType} onChange={handleAccountType} />
           </Grid.Column>
-          { showRowPrice ? (
+          {showRowPrice ? (
             <>
               <Grid.Column width={2} textAlign='right'>字段定价</Grid.Column>
               <Grid.Column width={4}>
                 <Input name="price.PerRow.displayPrice" onChange={formUpdate}
-                       error={!!errors.price}
-                       label={{ color: 'yellow', content:'tCNY' }} labelPosition='right' />
+                  error={!!errors.price}
+                  label={{ color: 'yellow', content: 'tCNY' }} labelPosition='right' />
               </Grid.Column>
             </>) : <></>
           }
@@ -228,10 +237,13 @@ function StepDetails({dataset}: StepDetailsProps): React.ReactElement<StepDetail
           <Grid.Column width={2} textAlign='right'>填写数据描述</Grid.Column>
           <Grid.Column width={10}>
             <Form.TextArea name="description" onChange={formUpdate} error={!!errors.description}
-                           placeholder='请输入内容' />
+              placeholder='请输入内容' />
           </Grid.Column>
         </Grid.Row>
-        <Grid.Row>
+        <Divider />
+        <Grid.Row style={{
+          margin: '-6px 24px 12px'
+        }}>
           <Button type="submit" primary>下一步</Button>
           <Button secondary onClick={handleCancel}>返回</Button>
         </Grid.Row>
@@ -252,7 +264,7 @@ export default function List(props: Props): React.ReactElement<Props> | null {
 
   const history = useHistory();
   const formMethods = useForm();
-  const [datasetState, setDatasetState] = useState<DatasetState>({header: null, rows: null, file: null, ipfs_path: ''});
+  const [datasetState, setDatasetState] = useState<DatasetState>({ header: null, rows: null, file: null, ipfs_path: '' });
   const [submitTxOpen, setSubmitTxOpen] = useState<boolean>(false);
   const [commandIssue, setCommandIssue] = useState('');
 
@@ -284,7 +296,7 @@ export default function List(props: Props): React.ReactElement<Props> | null {
       alert('请选择上传文件');
       return;
     }
-    const { name, category, dataset_preview, description, price} = values as any;
+    const { name, category, dataset_preview, description, price } = values as any;
     const amount = amountFromNL(parseInt(price.PerRow.displayPrice));
     const normalized = {
       List: {
@@ -303,9 +315,13 @@ export default function List(props: Props): React.ReactElement<Props> | null {
   }
 
   return (
-    <div>
-      <h1>新建商品</h1>
-      <hr/>
+    <PageContainer fluid>
+      <Header
+        as='h2'
+        content='数据商品市场'
+      />
+      <Divider />
+
       <FormContext {...formMethods}>
         <Form onSubmit={formMethods.handleSubmit(onSubmit)}>
           <StepBasic onDatasetReady={handleDatasetReady} />
@@ -340,6 +356,6 @@ export default function List(props: Props): React.ReactElement<Props> | null {
           </PButton.Group>
         </Modal.Content>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }

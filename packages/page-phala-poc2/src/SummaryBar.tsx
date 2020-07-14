@@ -75,7 +75,7 @@ function SummaryBar (props: Props,): React.ReactElement<Props> {
   return (
     <section className='ui--row'>
       <div className='large'>
-        <h2>advanced</h2>
+        <h2>高级调试数据</h2>
         <summary>
           <h5>Substrate</h5>
           <ParamsTable header={[]}>

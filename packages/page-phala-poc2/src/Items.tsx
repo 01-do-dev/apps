@@ -1,15 +1,16 @@
 import { I18nProps } from '@polkadot/react-components/types';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useHistory } from "react-router-dom";
 import styled from 'styled-components';
-import { Button, Card, Grid, Label, Icon, Input, Rating } from 'semantic-ui-react';
+import { Header, Divider, Card, Grid, Label, Icon, Rating } from 'semantic-ui-react';
 
 import { Item } from './legacy/models';
 import { pubkeyToCompany } from './legacy/utils';
 import { usePhalaShared } from './context';
 import ViewItem from './ViewItem';
 import { Modal } from '@polkadot/react-components';
+import PageContainer from './PageContainer';
 
 interface Props extends I18nProps  {
   accountId: string | null;
@@ -23,8 +24,6 @@ interface DatasetProps {
 }
 
 function _Dataset ({ className = '', item, id }: DatasetProps): React.ReactElement | null {
-  const history = useHistory();
-  const { basePath } = usePhalaShared(); 
   const [modal, setModal] = useState(false);
 
   function handleClick() {
@@ -97,48 +96,52 @@ function Items ({ className, t }: Props): React.ReactElement<Props> | null {
       });
   }, [pApi])
 
-  function handleListDataset() {
-    history.push(`${basePath}/list`);
-  }
-
   return (
-    <div className={className}>
-      <h1>数据商品市场</h1>
-      {/* <div>全部 / 我的</div> */}
-      <hr />
+    <PageContainer fluid>
+      <Header
+        as='h2'
+        content='数据商品市场'
+      />
+      <Divider />
 
-      <Grid>
-        {/* <Grid.Row columns={3}>
-          <Grid.Column>
-            数据标题 <Input placeholder='' />
-          </Grid.Column>
-          <Grid.Column>
-            买家名称 <Input placeholder='' />
-          </Grid.Column>
-          <Grid.Column>
-            数据类型 <Input placeholder='' />
-          </Grid.Column>
-        </Grid.Row> */}
-        <Grid.Row columns={2}>
-          <Grid.Column floated='left'>
-            <Button primary onClick={handleListDataset}><Icon name='add' />新建商品</Button>
-          </Grid.Column>
-          {/* <Grid.Column floated='right' textAlign='right'>
-            <Button primary>查询</Button>
-            <Button secondary>重置</Button>
-          </Grid.Column> */}
-        </Grid.Row>
-      </Grid>
-
-      <Grid doubling stackable>{
-        dataItems.map((i, idx) => (
-          <Grid.Column key={idx} width={5}>
-            <Dataset item={i} id={idx} />
-          </Grid.Column>
-        ))
-      }</Grid>
-    </div>
+      <GalleryWrapper>
+        <AddCard />
+        {
+          dataItems.map((i, idx) => (
+            <Dataset item={i} key={idx} id={idx} />
+          ))
+        }
+      </GalleryWrapper>
+    </PageContainer>
   )
+}
+
+const GalleryWrapper = styled(Card.Group)`
+  /* display: flex; */
+  width: 100%;
+
+`
+
+const AddCardContent = styled.div`
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  place-content: center;
+`
+
+const AddCard = () => {
+  const history = useHistory();
+  const { basePath } = usePhalaShared(); 
+
+  return <Card onClick={() => history.push(`${basePath}/list`)} raised={false} as='div'>
+    <AddCardContent>
+      <Header icon>
+        <Icon name='add' />
+        新建商品
+      </Header>
+    </AddCardContent>
+  </Card>;
 }
 
 export default Items;

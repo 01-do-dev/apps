@@ -182,27 +182,27 @@ function _PhalaPoc2 ({ className, basePath: basePathProp }: Props): React.ReactE
             {
               isRoot: true,
               name: 'items',
-              text: t('Items')
+              text: t('浏览')
             },
             {
               name: 'list',
-              text: t('Publish')
+              text: t('发布')
             },
             // {
             //   name: 'orders',
             //   text: t('Orders')
             // },
-            {
-              name: 'assets',
-              text: t('Assets')
-            },
-            {
-              name: 'balances',
-              text: t('Balances')
-            },
+            // {
+            //   name: 'assets',
+            //   text: t('Assets')
+            // },
+            // {
+            //   name: 'balances',
+            //   text: t('Balances')
+            // },
             {
               name: 'settings',
-              text: t('Settings')
+              text: t('设置')
             }
           ]}
         />
@@ -227,9 +227,9 @@ function _PhalaPoc2 ({ className, basePath: basePathProp }: Props): React.ReactE
           <Banner>
             <div className='box'>
               <div className='info'>
-                <p><strong>Phala Network testnet POC2</strong></p>
-                <p>Test only. The network may be reset randomly. pRuntime is running in development mode. So currently the confidentiality is not guaranteed.</p>
-                <p>Please select an account first.</p>
+                <p><strong>Phala Network POC2测试网络</strong></p>
+                <p>仅供测试。本测试网络可能随时会被重置。pRuntime当前运行于开发模式，因此无法保证其保密性。</p>
+                <p>请先选择一个账户。</p>
               </div>
             </div>
           </Banner>

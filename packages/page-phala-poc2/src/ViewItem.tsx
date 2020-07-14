@@ -148,7 +148,10 @@ export default function _ViewItem({ setModal, item, id }): React.ReactElement<Pr
       </Table>
 
       <Grid>
-        <Grid.Row>
+        <Grid.Row style={{
+          placeContent: 'center',
+          margin: '12px 0 6px'
+        }}>
           <Button primary onClick={handleBuy}>购买</Button>
         </Grid.Row>
       </Grid>

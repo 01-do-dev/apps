@@ -5,7 +5,7 @@ import { Modal, Button as PButton, TxButton, InputAddress } from '@polkadot/reac
 import React, {useEffect, useState, useCallback, useMemo} from 'react';
 import { useHistory, useParams } from "react-router-dom";
 import { useDropzone } from 'react-dropzone'
-import { Button, Form, Grid, Header, Input, Label, TextArea, Table } from 'semantic-ui-react';
+import { Button, Divider, Grid, Header, Modal as SModal, Label, TextArea, Table } from 'semantic-ui-react';
 import * as Papa from 'papaparse';
 
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -15,7 +15,7 @@ import { UploadContainer, genDataLabels, genTablePreview, fileToIpfsPath, readTe
 import { Item, defaultItem, CsvTablePreview, fmtAmount, Order } from './legacy/models'
 // import { getItem, set as setFile, getOrders } from './API';
 import { usePhalaShared } from './context';
-import create from '@polkadot/apps-routing/123code';
+import PageContainer from './PageContainer';
 
 // import imgIpfsSvg from './assets/ipfs-logo-vector-ice-text.svg';
 
@@ -39,6 +39,7 @@ export default function NewOrder(props: Props): React.ReactElement<Props> | null
 
   const { value } = useParams();
   const [item, setItem] = useState<Item>(defaultItem());
+  const [successWait, setSuccessWait] = useState(false);
 
   useEffect(()=> {
     if (!pApi) { return }
@@ -146,6 +147,7 @@ export default function NewOrder(props: Props): React.ReactElement<Props> | null
   
   async function handleSuccess() {
     const refBlock = parseInt(blockBeforeSubmit!.toString());
+    setSuccessWait(true);
     console.log(`tx submitted. waiting from ${refBlock}`)
     let myOrders: Array<Order> = [];
     for (let i = 0; i < 20; i++) {
@@ -159,17 +161,34 @@ export default function NewOrder(props: Props): React.ReactElement<Props> | null
         return;
       }
       console.log('waiting for order creation');
-      await sleep(500);
+      await sleep(2000);
     }
     alert('创建交易超时');
+    setSuccessWait(false);
   }
 
   return (
-    <div>
-      <h1>购买商品</h1>
+    <PageContainer fluid>
+      <SModal
+        open={successWait}
+        size='small'
+        actions={['Snooze', { key: 'done', content: 'Done', positive: true }]}
+      >
+        <Header icon='browser' content='正在处理购买请求' />
+        <Modal.Content>
+          <h3>处理完成后将自动跳转至结果页面，请稍候。</h3>
+        </Modal.Content>
+      </SModal>
+      <Header
+        as='h2'
+        content='购买商品'
+      />
       <hr/>
 
-      <h2>基本信息</h2>
+      <Header
+        as='h3'
+        content='基本信息'
+      />
       <Grid stackable>
         <Grid.Column width={5}>
           <Header as='h3'>{item.details.name}</Header>
@@ -202,7 +221,10 @@ export default function NewOrder(props: Props): React.ReactElement<Props> | null
           </Grid.Row>
       </Grid>
 
-      <h2>请求数据</h2>
+      <Header
+        as='h2'
+        content='请求数据'
+      />
       <Grid>
         <Grid.Row>
           <Grid.Column width={2} textAlign='right'>请求数据</Grid.Column>
@@ -276,7 +298,10 @@ export default function NewOrder(props: Props): React.ReactElement<Props> | null
           </Grid.Column>
         </Grid.Row>
 
-        <Grid.Row>
+        <Divider />
+        <Grid.Row style={{
+          margin: '-6px 24px 12px'
+        }}>
           <Button primary onClick={handleSubmitTx}>下一步</Button>
           <Button secondary onClick={handleCancel}>返回</Button>
         </Grid.Row>
@@ -308,9 +333,11 @@ export default function NewOrder(props: Props): React.ReactElement<Props> | null
             params={[1, commandIssue]}
             tx='phalaModule.pushCommand'
             onSuccess={handleSuccess}
+            onStart={() => setSuccessWait(true)}
+            onFailed={() => setSuccessWait(false)}
           />
         </Modal.Content>
       </Modal>
-    </div>
+    </PageContainer>
   )
 }
