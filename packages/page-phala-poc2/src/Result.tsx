@@ -2,7 +2,7 @@ import { ApiProps } from '@polkadot/react-api/types';
 import { I18nProps } from '@polkadot/react-components/types';
 
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import BN from 'bn.js';
 import styled from 'styled-components';
 import { Button, Card, Grid, Label, Icon, Input, Progress, Table } from 'semantic-ui-react';
@@ -13,6 +13,7 @@ import { Item, Order, defaultOrder } from './legacy/models';
 
 import download from 'downloadjs';
 import { usePhalaShared } from './context';
+import PageContainer from './PageContainer';
 
 interface Props {
   accountId: string | null;
@@ -94,40 +95,43 @@ export default function Result(props: Props): React.ReactElement<Props> | null {
     steps: [NullStep],
     cursor: 0
   });
-  const { pApi } = usePhalaShared();
+  const { basePath, accountId, pApi } = usePhalaShared();
   const [amount, setAmount] = React.useState<BN | undefined>(undefined);
-  const [order, setOrder] = React.useState<Order>(defaultOrder());
+  const [order, setOrder] = React.useState(null);
   const [payee, setPayee] = React.useState<string>('5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'); // to //Alice
+  const [paid, setPaid] = React.useState(false);
+  const history = useHistory();
+
 
   const id = parseInt(value);
 
-  // React.useEffect(() => {
-  //   let finished: Array<number>;
-  //   if (type == 'item') {
-  //     finished = app.state.items;
-  //   } else {
-  //     finished = app.state.orders;
-  //   }
-  //   console.log('result!', type, value);
-  //   const completed = finished.indexOf(id) >= 0;
-  //   const steps = createSteps(type, completed);
-  //   const p = {
-  //     cursor: completed ? steps.length : 0,
-  //     steps
-  //   };
-  //   setProgress(p);
-  //   (async () => {
-  //     await Promise.all([
-  //       fetchData(),
-  //       exec(p, setProgress)
-  //     ]);
-  //     app.setState((old: AppState): AppState => {
-  //       const s = {...old};
-  //       (type == 'item' ? s.items : s.orders).push(id);
-  //       return s;
-  //     });
-  //   })();
-  // }, [type, value])
+  useEffect(() => {
+    if (!accountId) {
+      history.push(`${basePath}/settings`);
+    }
+  }, [accountId]);
+
+  React.useEffect(() => {
+    console.log('result!', type, value);
+    const completed = false;
+    const steps = createSteps(type, completed);
+    const p = {
+      cursor: completed ? steps.length : 0,
+      steps
+    };
+    setProgress(p);
+    (async () => {
+      await Promise.all([
+        fetchData(),
+        exec(p, setProgress)
+      ]);
+      // app.setState((old: AppState): AppState => {
+      //   const s = {...old};
+      //   (type == 'item' ? s.items : s.orders).push(id);
+      //   return s;
+      // });
+    })();
+  }, [type, value])
 
   const done = React.useMemo(() => {
     return progress.cursor == progress.steps.length;
@@ -136,11 +140,6 @@ export default function Result(props: Props): React.ReactElement<Props> | null {
   const percent = React.useMemo(() => {
     return Math.floor(100 * progress.cursor / (progress.steps.length)).toString();
   }, [progress]);
-
-  // const paid = React.useMemo(() => {
-  //   if (type != 'order') return false;
-  //   return app.state.paidOrders.indexOf(id) >= 0;
-  // }, [app.state])
 
   async function fetchData() {
     if (type == 'order') {
@@ -153,14 +152,6 @@ export default function Result(props: Props): React.ReactElement<Props> | null {
       setPayee(pubkeyToAccount[i.seller])
     }
   }
-
-  // function setPaid() {
-  //   app.setState((old: AppState): AppState => {
-  //     const s = {...old};
-  //     s.paidOrders.push(id);
-  //     return s;
-  //   });
-  // }
 
   async function handleDownload() {
     const content = await pApi.getFile(order.state.resultPath);
@@ -176,25 +167,100 @@ export default function Result(props: Props): React.ReactElement<Props> | null {
   }, [type, value, pApi]);
 
   return (
-    <div>
+    <PageContainer fluid>
       <h1>{ type == 'item' ? '上架' : '商品订单' }</h1>
       <hr />
 
-      {type == 'order' && (
+      <h2>执行计划</h2>
+      <Grid container>
+        <Grid.Row>
+          <Grid.Column>
+            <Progress percent={percent} autoSuccess>
+              {percent}%
+            </Progress>
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column>
+              <Table fixed inverted>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell></Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>
+                      <Icon name='desktop' size='big' /> <br/>
+                      本地计算
+                    </Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>
+                      <Icon name='microchip' size='big' /> <br/>
+                      TEE计算
+                    </Table.HeaderCell>
+                    <Table.HeaderCell textAlign='center'>
+                      <Icon name='chain' size='big' /> <br/>
+                      链上计算
+                    </Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {progress.steps.map((s, idx) => (
+                    <Table.Row key={idx}>
+                      <Table.Cell>
+                        {idx < progress.cursor ?
+                          (<Icon color='green' name='check circle' />)
+                         : idx == progress.cursor ? 
+                          (<Icon loading name='circle notch' />)
+                         :
+                          (<Icon color='grey' name='clock outline' />)}
+                        {s.name}
+                      </Table.Cell>
+                      { s.state.map((opstate, opidx) => (
+                        <Table.Cell textAlign='center' key={opidx}>
+                          { opstate == 'wait' ?
+                            (<Icon color='grey' name='clock outline' />)
+                          : opstate == 'running' ?
+                            (<Icon loading name='circle notch' />)
+                          : opstate == 'done' ?
+                            (<Icon color='green' name='check circle' />)
+                          : undefined }
+                        </Table.Cell>
+                      ))}
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
+
+      {type == 'order' && done && (
         <>
           <h2>查询结果</h2>
           <hr />
-          <p>已匹配: {order.state.matchedRows} 条记录</p>
-          <>
-            <p><Icon color='green' name='check circle' /> 已支付</p>
-            <Button onClick={handleDownload} primary >下载结果</Button>
-          </>
+          <p>已匹配: {order?.state?.matchedRows} 条记录</p>
 
+          { !paid
+          ? (
+            <div>
+              <InputBalance
+                label='需要支付'
+                defaultValue={amount}
+                isDisabled
+              />
+              <PButton.Group>
+                <Button primary onClick={() => setPaid(true)} icon="paper plane">支付</Button>
+              </PButton.Group>
+            </div>
+          )
+          : (
+            <>
+              <p><Icon color='green' name='check circle' /> 已支付</p>
+              <Button onClick={handleDownload} primary disabled={percent != '100'}>下载结果</Button>
+            </>
+          )}
           {/* <p>link: {JSON.stringify(order)}</p> */}
         </>
       )}
 
 
-    </div>
+    </PageContainer>
   )
 }
