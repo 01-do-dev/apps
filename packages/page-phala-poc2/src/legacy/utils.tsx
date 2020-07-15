@@ -43,11 +43,16 @@ export function genDataLabel (name: string, value: string | React.ReactElement, 
 }
 
 export function genDataLabels (dict: Array<[string, string]>) {
-  return dict.map(([k, v], idx) => (
-    <Grid.Column width={5} key={idx}>
-      {genDataLabel(k, v)}
-    </Grid.Column>
-  ))
+  return <Table celled padded fixed>
+    <Table.Body>
+      {dict.map(([k, v], idx) => (
+        <Table.Row key={idx}>
+          <Table.Cell>{k}</Table.Cell>
+          <Table.Cell>{v}</Table.Cell>
+        </Table.Row>
+      ))}
+    </Table.Body>
+  </Table>
 }
 
 const uploaderGetColor = (props: any) => {

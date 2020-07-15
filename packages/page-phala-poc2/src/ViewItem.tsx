@@ -9,6 +9,7 @@ import * as Papa from 'papaparse';
 import { Item, fmtAmount } from './legacy/models';
 import { genTablePreview, genDataLabel, genDataLabels, isSamePerson, pubkeyToCompany } from './legacy/utils';
 import { usePhalaShared } from './context';
+import { hexToSs58 } from './utils';
 
 interface Props {
   basePath: string;
@@ -55,6 +56,8 @@ export default function _ViewItem({ setModal, item, id }): React.ReactElement<Pr
     return !!(accountId && isSamePerson(accountId, item.seller));
   }, [accountId, item])
 
+  const seller = useMemo(() => hexToSs58(`0x${item.seller}`), [item.seller])
+
   return (
     <div>
       <h1>数据商品详情</h1>
@@ -62,20 +65,16 @@ export default function _ViewItem({ setModal, item, id }): React.ReactElement<Pr
       <hr />
 
       <h2>基本信息</h2>
-      <Grid stackable>
-        <Grid.Column width={5}>
-          <Header as='h3'>{item.details.name}</Header>
-        </Grid.Column>
-        {genDataLabels([
-          ['上传时间', '2018-03-05'],
-          ['计价方式', item.details.price.PerRow ? '按量付费' : '其他'],
-          ['ID', (10000 + item.id).toString()],
-          ['数据总数', '1万条'],
-          ['价格', fmtAmount(item.details.price.PerRow.price) + ' 元/条'],
-          ['商户', pubkeyToCompany[item.seller]],
-          ['数据大小', '2TB']
-        ])}
-      </Grid>
+      <Header as='h3'>{item.details.name}</Header>
+      {genDataLabels([
+        ['上传时间', '2018-03-05'],
+        ['计价方式', item.details.price.PerRow ? '按量付费' : '其他'],
+        ['ID', (10000 + item.id).toString()],
+        ['数据总数', '1万条'],
+        ['价格', fmtAmount(item.details.price.PerRow.price) + ' 元/条'],
+        ['商户', seller],
+        ['数据大小', '2TB']
+      ])}
 
       <hr />
 

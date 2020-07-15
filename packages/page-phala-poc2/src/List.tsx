@@ -16,6 +16,7 @@ import { UploadContainer, genTablePreview, fileToIpfsPath, readTextFileAsync, sl
 import { amountFromNL } from './legacy/models'
 import { usePhalaShared } from './context';
 import PageContainer from './PageContainer';
+import { u8aToHexCompact } from './utils';
 
 // import imgIpfsSvg from './assets/ipfs-logo-vector-ice-text.svg';
 
@@ -259,7 +260,7 @@ interface Props {
 }
 
 export default function List(props: Props): React.ReactElement<Props> | null {
-  const { basePath, accountId, createCommand, pApi } = usePhalaShared();
+  const { basePath, accountId, createCommand, pApi, keypair } = usePhalaShared();
 
   const contractId = useRef(1).current;
 
@@ -325,6 +326,7 @@ export default function List(props: Props): React.ReactElement<Props> | null {
   }
 
   const handleSuccess = useCallback(async (...props) => {
+    const pk = u8aToHexCompact(keypair?.publicKey);
     const refBlock = parseInt(blockBeforeSubmit!.toString());
     setSuccessWait(true);
     console.log(`tx submitted. waiting from ${refBlock}`, props)
@@ -332,7 +334,7 @@ export default function List(props: Props): React.ReactElement<Props> | null {
     for (let i = 0; i < 20; i++) {
       const { GetItems: { items } } = await pApi.getItems();
       console.log(items)
-      myItems = items.filter((o) => (o.txref.blocknum > refBlock && isSamePerson(accountId!, o.seller)));
+      myItems = items.filter((o) => (o.txref.blocknum > refBlock && pk === o.seller));
       if (myItems.length > 0) {
         // found!
         const item = myItems[myItems?.length - 1];
@@ -345,7 +347,7 @@ export default function List(props: Props): React.ReactElement<Props> | null {
     }
     alert('创建交易超时');
     setSuccessWait(false);
-  }, [accountId, pApi, blockBeforeSubmit]); 
+  }, [keypair, accountId, pApi, blockBeforeSubmit]); 
 
   return (
     <PageContainer fluid>

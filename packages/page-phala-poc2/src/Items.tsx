@@ -12,6 +12,9 @@ import ViewItem from './ViewItem';
 import { Modal } from '@polkadot/react-components';
 import PageContainer from './PageContainer';
 
+import { hexToSs58 } from './utils';
+
+
 interface Props extends I18nProps  {
   accountId: string | null;
   basePath: string
@@ -35,9 +38,12 @@ function _Dataset ({ className = '', item, id }: DatasetProps): React.ReactEleme
     }
   }, [itemId])
 
+  const seller = useMemo(() => hexToSs58(`0x${item.seller}`), [item.seller])
+
   function handleClick() {
     setModal(true)
   }
+
   return <>
     <Card onClick={handleClick} className={className} raised={false} as='div'>
       <Card.Content>
@@ -55,7 +61,7 @@ function _Dataset ({ className = '', item, id }: DatasetProps): React.ReactEleme
           </Grid.Row>
         </Grid>
         <br/>
-        <p>商户: {pubkeyToCompany[item.seller]}</p>
+        <p>商户: {seller}</p>
         <p>链上地址: {item.details.datasetLink}</p>
         <p>数据总数: 300万条</p>
         <p>数据大小: 2TB</p>

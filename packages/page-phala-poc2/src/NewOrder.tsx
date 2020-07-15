@@ -16,6 +16,7 @@ import { Item, defaultItem, CsvTablePreview, fmtAmount, Order } from './legacy/m
 // import { getItem, set as setFile, getOrders } from './API';
 import { usePhalaShared } from './context';
 import PageContainer from './PageContainer';
+import { ss58ToHex, u8aToHexCompact } from './utils';
 
 // import imgIpfsSvg from './assets/ipfs-logo-vector-ice-text.svg';
 
@@ -27,7 +28,7 @@ interface Props {
 export default function NewOrder(props: Props): React.ReactElement<Props> | null {
   // const app = React.useContext(AppContext.Context);
   const history = useHistory();
-  const { pApi, basePath, accountId, createCommand } = usePhalaShared();
+  const { pApi, basePath, accountId, createCommand, keypair } = usePhalaShared();
 
   useEffect(() => {
     if (!accountId) {
@@ -146,13 +147,15 @@ export default function NewOrder(props: Props): React.ReactElement<Props> | null
   //  onchain operation
   
   async function handleSuccess() {
+    const pk = u8aToHexCompact(keypair?.publicKey);
     const refBlock = parseInt(blockBeforeSubmit!.toString());
     setSuccessWait(true);
     console.log(`tx submitted. waiting from ${refBlock}`)
     let myOrders: Array<Order> = [];
     for (let i = 0; i < 20; i++) {
       const { GetOrders: { orders } } = await pApi.getOrders();
-      myOrders = orders.filter((o) => (o.txref.blocknum > refBlock && isSamePerson(accountId!, o.buyer)));
+      console.log(orders);
+      myOrders = orders.filter((o) => (o.txref.blocknum > refBlock && pk === o.buyer));
       if (myOrders.length > 0) {
         // found!
         const order = myOrders[myOrders?.length - 1];
