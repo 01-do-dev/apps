@@ -324,10 +324,10 @@ export default function List(props: Props): React.ReactElement<Props> | null {
     setSubmitTxOpen(false);
   }
 
-  const handleSuccess = useCallback(async () => {
+  const handleSuccess = useCallback(async (...props) => {
     const refBlock = parseInt(blockBeforeSubmit!.toString());
     setSuccessWait(true);
-    console.log(`tx submitted. waiting from ${refBlock}`)
+    console.log(`tx submitted. waiting from ${refBlock}`, props)
     let myItems: Array = [];
     for (let i = 0; i < 20; i++) {
       const { GetItems: { items } } = await pApi.getItems();
@@ -345,7 +345,7 @@ export default function List(props: Props): React.ReactElement<Props> | null {
     }
     alert('创建交易超时');
     setSuccessWait(false);
-  }, [pApi, blockBeforeSubmit]); 
+  }, [accountId, pApi, blockBeforeSubmit]); 
 
   return (
     <PageContainer fluid>
