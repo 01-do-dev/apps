@@ -205,9 +205,6 @@ function Address ({ currentItem, onChange, passwordError, requestAddress }: Prop
             withLabel
           />
         </Modal.Column>
-        <Modal.Column>
-          <p>{t('The sending account that will be used to send this transaction. Any applicable fees will be paid by this account.')}</p>
-        </Modal.Column>
       </Modal.Columns>
       {proxyInfo && isProxyActive && (
         <Modal.Columns>

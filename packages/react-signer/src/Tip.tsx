@@ -45,9 +45,6 @@ function Tip ({ className, onChange }: Props): React.ReactElement<Props> | null 
           />
         )}
       </Modal.Column>
-      <Modal.Column>
-        <p>{t<string>('Adding an optional tip to the transaction could allow for higher priority, especially when the chain is busy.')}</p>
-      </Modal.Column>
     </Modal.Columns>
   );
 }
