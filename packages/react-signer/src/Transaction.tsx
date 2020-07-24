@@ -55,9 +55,6 @@ function Transaction ({ className, currentItem: { accountId, extrinsic, isUnsign
           />
         )}
       </Modal.Column>
-      <Modal.Column>
-        <p>{t<string>('The details of the transaction including the type, the description (as available from the chain metadata) as well as any parameters and fee estimations (as available) for the specific type of call.')}</p>
-      </Modal.Column>
     </Modal.Columns>
   );
 }

@@ -107,7 +107,7 @@ function Items ({ className, t }: Props): React.ReactElement<Props> | null {
     if (!pApi) { return }
     pApi.getItems()
       .then(res => {
-        setDataItems(res?.GetItems?.items || []);
+        setDataItems((res?.GetItems?.items || []).reverse());
       });
   }, [pApi])
 

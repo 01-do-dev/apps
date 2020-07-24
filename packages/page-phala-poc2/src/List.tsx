@@ -22,7 +22,7 @@ import { u8aToHexCompact } from './utils';
 
 
 const categories = [
-  { key: 'c1', value: '征信数据', text: '征信数据' },
+  { key: 'c1', value: '数据', text: '数据' },
   { key: 'c2', value: '语料库', text: '语料库' },
   { key: 'c3', value: '图像', text: '图像' },
   { key: 'c4', value: '语音', text: '语音' },
@@ -356,7 +356,7 @@ export default function List(props: Props): React.ReactElement<Props> | null {
         size='small'
         actions={['Snooze', { key: 'done', content: 'Done', positive: true }]}
       >
-        <Header icon='browser' content='正在处理购买请求' />
+        <Header icon='browser' content='正在处理创建请求' />
         <Modal.Content>
           <h3>处理完成后将自动跳转至结果页面，请稍候。</h3>
         </Modal.Content>

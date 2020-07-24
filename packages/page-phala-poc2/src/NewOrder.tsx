@@ -262,12 +262,12 @@ export default function NewOrder(props: Props): React.ReactElement<Props> | null
           </Grid.Column>
         </Grid.Row>
         <Grid.Row>
-          <Grid.Column width={2} textAlign='right'>选择可信矿工</Grid.Column>
+          <Grid.Column width={2} textAlign='right'>选择可信节点</Grid.Column>
           <Grid.Column width={10}>
             <Table>
               <Table.Header>
                 <Table.Row>
-                  <Table.HeaderCell>矿工地址</Table.HeaderCell>
+                  <Table.HeaderCell>计算节点地址</Table.HeaderCell>
                   <Table.HeaderCell>相对算力</Table.HeaderCell>
                   <Table.HeaderCell>价格</Table.HeaderCell>
                   <Table.HeaderCell>节点状态</Table.HeaderCell>

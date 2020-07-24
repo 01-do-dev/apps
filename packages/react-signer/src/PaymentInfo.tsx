@@ -50,7 +50,7 @@ function PaymentInfo ({ accountId, className = '', extrinsic }: Props): React.Re
       className={className}
       summary={
         <Trans i18nKey='feesForSubmission'>
-          Fees of <span className='highlight'>{formatBalance(dispatchInfo.partialFee, { withSiFull: true })}</span> will be applied to the submission
+          提交请求需支付 <span className='highlight'>{formatBalance(dispatchInfo.partialFee, { withSiFull: true })}</span> 费用。
         </Trans>
       }
       withDot

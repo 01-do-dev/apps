@@ -18,6 +18,6 @@ export default function create (t: (key: string, text: string, options: { ns: st
     },
     icon: 'microchip',
     name: 'phala-poc2',
-    text: t('nav.phala-poc2', 'Phala POC2', { ns: 'apps-routing' })
+    text: t('nav.phala-poc2', '数据市场', { ns: 'apps-routing' })
   };
 }
